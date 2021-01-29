@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk         # Моудль для нового вида виджетов с оформлением WINDOW
 import sys
+from proccess import CpuBar
 
 geom = '400x400'
 class Application(tk.Tk):           #Наследуемся от класса создания основного окна
@@ -14,8 +15,10 @@ class Application(tk.Tk):           #Наследуемся от класса с
         self.resizable(False, False)        # При фолз запрещает изменять размерность окна
         self.title('My_CPU_BAR')           #Панель названия окна
 
-        self.set_ui()               #Инициализируем окно и запускаем свой метод, который заполнит окно нашими параметрами
 
+        self.cpu = CpuBar()         #Определяем метод вызывающий класс,отражающий ядра, созданный в отдельном модуле.
+        self.set_ui()               #Инициализируем окно и запускаем свой метод, который заполнит окно нашими параметрами
+        self.make_bar_cpu_usage()
 
     def set_ui(self):               # Набор графических ВИДЖЕТОВ для интерфейса
         exit_but = ttk.Button(self, text='Exit', command=self.app_exit)        #Создание кнопки с названием,  command- команда иполняемая по нажатию, это метод класса с названием app_exit
@@ -33,13 +36,29 @@ class Application(tk.Tk):           #Наследуемся от класса с
         ttk.Button(self.bar2, text='Move').pack(side=tk.LEFT)              # Создаем кнопку, размещаем на фрейме бар2, side - сторона
         ttk.Button(self.bar2, text='>>>').pack(side=tk.LEFT)
 
-        self.bar2 = ttk.LabelFrame(self, text='Power')
-        self.bar2.pack(fill=tk.BOTH)            #выравнивание по ширине
+        self.bar1 = ttk.LabelFrame(self, text='Power')
+        self.bar1.pack(fill=tk.BOTH)            #выравнивание по ширине
         self.test = ttk.Button(self.bar2, text='test').pack(side=tk.LEFT)
 
 
         self.bind_class('Tk', '<Enter>',self.enter_mouse)     #Позволяет сделать окно появляющимся bind - jбрабатывает события наведения нажатия и прочее. При наведение на класс-Tk. Будут вызываться методы
         self.bind_class('Tk', '<Leave>',self.leave_mouse)     #Enter - при наведении мыши Leave - при покидании
+
+    def make_bar_cpu_usage(self):
+        ttk.Label(self.bar1, text=f'physical_cores: {self.cpu.cpu_count}, logical cores:{self.cpu.cpu_count_logical}',       #lable  - метка(название, шапка) на фрейме Power
+                  anchor=tk.CENTER).pack(fill=tk.X)     #anchor - якорь прикрепляем как метку к ередине экрана и устанавливаем по ширине
+
+        self.list_label = []    #
+        self.list_pbar = []     #Прогресс бар
+
+        for i in range(self.cpu.cpu_count_logical):             #по количеству потоков создаем списки
+            self.list_label.append(ttk.Label(self.bar1, anchor=tk.CENTER))
+            self.list_pbar.append(ttk.Progressbar(self.bar1, length=100))       #длина будет разбита на 100 делений (под % загрузку процессора)
+
+        for i in range(self.cpu.cpu_count_logical):
+            self.list_label[i].pack(fill=tk.X)
+            self.list_pbar[i].pack(fill=tk.X)
+
 
     def enter_mouse(self,event):     #Метод при наведении мыши, event - обязательно указатьб при срабатвывании оброботчика ошибок
         if self.combo_win.current() == 0 or 1: #Если выбрано значение из списка скрывать или не скрывать
@@ -58,6 +77,6 @@ class Application(tk.Tk):           #Наследуемся от класса с
 
 
 
-
-root = Application ()               # Создание базового окна в функцоинальном стиле
-root.mainloop()
+if __name__ == '__main__':
+    root = Application ()               # Создание базового окна в функцоинальном стиле
+    root.mainloop()
