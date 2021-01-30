@@ -10,7 +10,7 @@ class Configure_widgets:                               # Класс, котор�
             self.list_pbar[i].configure(value=r[i])                          # конфигурация - логическое заполнение места значениями.
 
 
-        r2 = self.cpu.rum_usage()
+        r2 = self.cpu.ram_usage()
         self.ram_lab.configure(text=f'RAMM usage: {r2[2]}%, used{round(r2[3]/1048576)}MB,\n available: {round(r2[1]/1048576)}Mb')
         self.ram_bar.configure(value=r2[2])
 
@@ -24,3 +24,15 @@ class Configure_widgets:                               # Класс, котор�
         else:
             self.overrideredirect(True)
         self.update()
+
+
+    def clear_win(self):                      # Очищение окна от виджетов для min режима
+        for i in self.winfo_children():            # Возвращает список виджетов размещенных на главном окне
+            print(i)
+            i.destroy()
+
+
+    def configure_minimal_win(self):                                        # заполняем шкалы в минимальном режиме
+        self.bar_one.configure(value=self.cpu.cpu_one_return())             # Общая загрузка ядер
+        self.ram_bar.configure(value=self.cpu.ram_usage()[2])               # Занятость ОЗУ
+        self.wheel = self.after(1000, self.configure_minimal_win)
