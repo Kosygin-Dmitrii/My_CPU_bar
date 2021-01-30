@@ -2,9 +2,12 @@ import tkinter as tk
 from tkinter import ttk         # Моудль для нового вида виджетов с оформлением WINDOW
 import sys
 from proccess import CpuBar
+from widget_update import Configure_widgets
+
+
 
 geom = '400x400'
-class Application(tk.Tk):           #Наследуемся от класса создания основного окна
+class Application(tk.Tk, Configure_widgets):           #Наследуемся от класса создания основного окна
     def __init__(self):             # Перегружаем метод инит у класса
         tk.Tk.__init__(self)
         self.geometry(geom)            # Создание геометрии окна  400x400+50+1000 - ширина высота и отступы от угла
@@ -18,7 +21,9 @@ class Application(tk.Tk):           #Наследуемся от класса с
 
         self.cpu = CpuBar()         #Определяем метод вызывающий класс,отражающий ядра, созданный в отдельном модуле.
         self.set_ui()               #Инициализируем окно и запускаем свой метод, который заполнит окно нашими параметрами
-        self.make_bar_cpu_usage()
+        self.make_bar_cpu_usage()   #Заполняет окно виджетами
+        self.congifure_cpu_bar()    # Конфигурирует значения в ввиджеты, т.к. наследовался класс приложение от виджет_апдейт, то берем от туда этот метод
+
 
     def set_ui(self):               # Набор графических ВИДЖЕТОВ для интерфейса
         exit_but = ttk.Button(self, text='Exit', command=self.app_exit)        #Создание кнопки с названием,  command- команда иполняемая по нажатию, это метод класса с названием app_exit
@@ -33,7 +38,7 @@ class Application(tk.Tk):           #Наследуемся от класса с
 
 
 
-        ttk.Button(self.bar2, text='Move').pack(side=tk.LEFT)              # Создаем кнопку, размещаем на фрейме бар2, side - сторона
+        ttk.Button(self.bar2, text='Move', command=self.configure_win).pack(side=tk.LEFT)              # Создаем кнопку, размещаем на фрейме бар2, side - сторона
         ttk.Button(self.bar2, text='>>>').pack(side=tk.LEFT)
 
         self.bar1 = ttk.LabelFrame(self, text='Power')
@@ -58,6 +63,13 @@ class Application(tk.Tk):           #Наследуемся от класса с
         for i in range(self.cpu.cpu_count_logical):
             self.list_label[i].pack(fill=tk.X)
             self.list_pbar[i].pack(fill=tk.X)
+
+        self.ram_lab = ttk.Label(self.bar1,  anchor=tk.CENTER)           #создаем метку для оперативной памяти по центру
+        self.ram_lab.pack(fill=tk.X)                                                #Заполняем растягиваем по Х
+        self.ram_bar = ttk.Progressbar(self.bar1, length=100)                       #Создаем шкалу на 100 делений
+        self.ram_bar.pack(fill=tk.X)                                                #Растягиваем по Х
+
+
 
 
     def enter_mouse(self,event):     #Метод при наведении мыши, event - обязательно указатьб при срабатвывании оброботчика ошибок
